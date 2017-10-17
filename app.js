@@ -55,6 +55,10 @@ consul.kv.get(`config/sentinel/${moduleName}`, function(err, result) {
     };
 
     global.config = config;
+
+    if ( !config.timer_uuid )
+        config.timer_uuid = uuid.v4();
+
     global.config.save();
 
     let pub = redis.createClient(

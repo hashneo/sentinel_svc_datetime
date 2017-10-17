@@ -39,19 +39,19 @@ function _module(config) {
 */
 
     deviceCache.on( 'set', function( key, value ){
-        let data = JSON.stringify( { module: '_module', id : key, value : value });
+        let data = JSON.stringify( { module: 'datetime', id : key, value : value });
         console.log( 'sentinel.device.insert => ' + data );
         pub.publish( 'sentinel.device.insert', data);
     });
 
     deviceCache.on( 'delete', function( key ){
-        let data = JSON.stringify( { module: '_module', id : key });
+        let data = JSON.stringify( { module: 'datetime', id : key });
         console.log( 'sentinel.device.delete => ' + data );
         pub.publish( 'sentinel.device.delete', data);
     });
 
     statusCache.on( 'set', function( key, value ){
-        let data = JSON.stringify( { module: '_module', id : key, value : value });
+        let data = JSON.stringify( { module: 'datetime', id : key, value : value });
         console.log( 'sentinel.device.update => ' + data );
         pub.publish( 'sentinel.device.update', data);
     });
@@ -139,6 +139,12 @@ function _module(config) {
 
     function updateStatus() {
         return new Promise( ( fulfill, reject ) => {
+            let d = {
+                id: global.config.timer_uuid,
+            };
+
+            statusCache.set(d.id, { now : moment.utc().format() });
+
             fulfill();
         });
     }
@@ -151,7 +157,23 @@ function _module(config) {
 
     function loadSystem(){
         return new Promise( ( fulfill, reject ) => {
-            fulfill();
+
+            let devices = [];
+
+            let d = {
+                id: global.config.timer_uuid,
+                name: 'timer',
+                type: 'timer',
+                current: {}
+            };
+
+            deviceCache.set(d.id, d);
+
+            devices.push(d);
+
+            statusCache.set(d.id, { now : moment.utc().format() });
+
+            fulfill(devices);
         });
     }
 
@@ -162,7 +184,7 @@ function _module(config) {
             function pollSystem() {
                 updateStatus()
                     .then(() => {
-                        setTimeout(pollSystem, 10000);
+                        setTimeout(pollSystem, 1000);
                     })
                     .catch((err) => {
                         console.error(err);
@@ -171,7 +193,7 @@ function _module(config) {
 
             }
 
-            setTimeout(pollSystem, 10000);
+            setTimeout(pollSystem, 1000);
 
         })
         .catch((err) => {
