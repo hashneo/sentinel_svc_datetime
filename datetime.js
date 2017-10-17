@@ -143,7 +143,7 @@ function _module(config) {
                 id: global.config.timer_uuid,
             };
 
-            statusCache.set(d.id, { now : moment.utc().format() });
+            statusCache.set(d.id, getNow() );
 
             fulfill();
         });
@@ -154,6 +154,20 @@ function _module(config) {
             fulfill([]);
         });
     };
+
+    function getNow(){
+
+        let now = moment.utc();
+
+        return {
+            now : now.format(),
+            date : now.format('YYYY-MM-DD'),
+            day :  now.format('E'),
+            week :  now.format('W'),
+            time : now.format('HH:mm:ss'),
+            ts : now.format('X  '),
+        }
+    }
 
     function loadSystem(){
         return new Promise( ( fulfill, reject ) => {
@@ -171,7 +185,7 @@ function _module(config) {
 
             devices.push(d);
 
-            statusCache.set(d.id, { now : moment.utc().format() });
+            statusCache.set(d.id, getNow() );
 
             fulfill(devices);
         });
