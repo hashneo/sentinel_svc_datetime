@@ -192,11 +192,11 @@ function _module(config) {
             let d = {
                 now : now.format(),
                 date : now.format('YYYY-MM-DD'),
-                day :  now.format('E'),
+                dayOfWeek :  now.format('E'),
                 week :  now.format('W'),
                 time : now.format('HH:mm:ss'),
-                ts : now.format('X'),
-                tz: global.config.tz
+                epoch : now.format('X'),
+                tz : global.config.tz
             };
 
             if ( global.config.location ){
