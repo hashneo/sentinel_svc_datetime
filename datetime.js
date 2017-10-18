@@ -166,12 +166,16 @@ function _module(config) {
 
     function addSunriseSunset(d, data){
 
-        d['sunrise'] = moment(data.results.sunrise).tz(global.config.tz).format();
-        d['sunset'] = moment(data.results.sunset).tz(global.config.tz).format();
+        d['sunrise'] = { 'event' :  moment(data.results.sunrise).tz(global.config.tz).format() };
+        d['sunset'] = { 'event' : moment(data.results.sunset).tz(global.config.tz).format() };
 
         let now = moment( d.now );
-        let sunrise = moment( d.sunrise );
-        let sunset = moment( d.sunset );
+        let sunrise = moment( d.sunrise.event );
+        let sunset = moment( d.sunset.event );
+
+        d.sunrise['minutes'] = Math.round((0-(now - sunrise))/60000);
+        d.sunset['minutes'] = Math.round((0-(now - sunset))/60000);
+
         //let dayLength = sunset - sunrise;
 
         d['dayTime'] = (now >= sunrise) && (now <= sunset);
@@ -202,7 +206,7 @@ function _module(config) {
                     return fulfill(d);
                 }
 
-                let url = `https://api.sunrise-sunset.org/json?lat=${global.config.location.lat}&lng=${global.config.location.lng}&formatted=0&date=${now.format()}`;
+                let url = `https://api.sunrise-sunset.org/json?lat=${global.config.location.lat}&lng=${global.config.location.lng}&formatted=0`;
 
                 call( url )
                     .then( (data) => {
