@@ -8,7 +8,7 @@ function _module(config) {
     }
 
     const redis = require('redis');
-    const moment = require('moment');
+    const moment = require('moment-timezone');
 
     let pub = redis.createClient(
         {
@@ -166,8 +166,8 @@ function _module(config) {
 
     function addSunriseSunset(d, data){
 
-        d['sunrise'] = moment(data.results.sunrise).utc().format();
-        d['sunset'] = moment(data.results.sunset).utc().format();
+        d['sunrise'] = moment(data.results.sunrise).tz(global.config.tz).format();
+        d['sunset'] = moment(data.results.sunset).tz(global.config.tz).format();
 
         let now = moment( d.now );
         let sunrise = moment( d.sunrise );
@@ -183,7 +183,7 @@ function _module(config) {
 
         return new Promise( (fulfill, reject) => {
 
-            let now = moment.utc();
+            let now = moment.tz(global.config.tz);
 
             let d = {
                 now : now.format(),
@@ -192,6 +192,7 @@ function _module(config) {
                 week :  now.format('W'),
                 time : now.format('HH:mm:ss'),
                 ts : now.format('X'),
+                tz: global.config.tz
             };
 
             if ( global.config.location ){

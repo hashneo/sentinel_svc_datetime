@@ -56,6 +56,9 @@ consul.kv.get(`config/sentinel/${moduleName}`, function(err, result) {
 
     global.config = config;
 
+    if ( !config.tz )
+        config.tz = 'UTC';
+
     if ( !config.timer_uuid )
         config.timer_uuid = uuid.v4();
 
