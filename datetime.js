@@ -182,12 +182,12 @@ function _module(config) {
             if ( global.config.location ){
 
                 if ( lastSunriseSunset.date === d.date ){
-                    d['sunrise'] = lastSunriseSunset.data.results.sunrise;
-                    d['sunset'] = lastSunriseSunset.data.results.sunset;
+                    d['sunrise'] = moment(lastSunriseSunset.data.results.sunrise).utc().format();
+                    d['sunset'] = moment(lastSunriseSunset.data.results.sunset).utc().format();
                     return fulfill(d);
                 }
 
-                let url = `https://api.sunrise-sunset.org/json?lat=${global.config.location.lat}&lng=${global.config.location.lng}&formatted=0`;
+                let url = `https://api.sunrise-sunset.org/json?lat=${global.config.location.lat}&lng=${global.config.location.lng}&formatted=0&date=${now.subtract(1, 'd').format()}`;
 
                 call( url )
                     .then( (data) => {
@@ -197,8 +197,8 @@ function _module(config) {
                         if ( data.results ) {
                             lastSunriseSunset.date = d.date;
 
-                            d['sunrise'] = data.results.sunrise;
-                            d['sunset'] = data.results.sunset;
+                            d['sunrise'] = moment(data.results.sunrise).utc().format();
+                            d['sunset'] = moment(data.results.sunset).utc().format();
                         }
 
                         return fulfill(d);
