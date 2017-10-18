@@ -143,9 +143,16 @@ function _module(config) {
                 id: global.config.timer_uuid,
             };
 
-            statusCache.set(d.id, getNow() );
 
-            fulfill();
+            getNow()
+                .then( (data) => {
+                    statusCache.set( d.id, data );
+                    fulfill();
+                })
+                .catch( (err) =>{
+                    reject(err);
+                })
+
         });
     }
 
@@ -155,21 +162,63 @@ function _module(config) {
         });
     };
 
+    let lastSunriseSunset = { date : '', data : null };
+
     function getNow(){
 
-        let now = moment.utc();
+        return new Promise( (fulfill, reject) => {
 
-        return {
-            now : now.format(),
-            date : now.format('YYYY-MM-DD'),
-            day :  now.format('E'),
-            week :  now.format('W'),
-            time : now.format('HH:mm:ss'),
-            ts : now.format('X  '),
-        }
+            let now = moment.utc();
+
+            let d = {
+                now : now.format(),
+                date : now.format('YYYY-MM-DD'),
+                day :  now.format('E'),
+                week :  now.format('W'),
+                time : now.format('HH:mm:ss'),
+                ts : now.format('X'),
+            };
+
+            if ( global.config.location ){
+
+                if ( lastSunriseSunset.date === d.date ){
+                    d['sunrise'] = lastSunriseSunset.data.results.sunrise;
+                    d['sunset'] = lastSunriseSunset.data.results.sunset;
+                    return fulfill(d);
+                }
+
+                let url = `https://api.sunrise-sunset.org/json?lat=${global.config.location.lat}&lng=${global.config.location.lng}&formatted=0`;
+
+                call( url )
+                    .then( (data) => {
+
+                        lastSunriseSunset.data = data;
+
+                        if ( data.results ) {
+                            lastSunriseSunset.date = d.date;
+
+                            d['sunrise'] = data.results.sunrise;
+                            d['sunset'] = data.results.sunset;
+                        }
+
+                        return fulfill(d);
+                    })
+                    .catch( (err) =>{
+                        reject(err);
+                    });
+            }else {
+                fulfill(d);
+            }
+
+           // fulfill(d);
+            // https://api.sunrise-sunset.org/json?lat=36.7201600&lng=-4.4203400&formatted=0
+
+        });
+
     }
 
     function loadSystem(){
+
         return new Promise( ( fulfill, reject ) => {
 
             let devices = [];
@@ -185,9 +234,14 @@ function _module(config) {
 
             devices.push(d);
 
-            statusCache.set(d.id, getNow() );
-
-            fulfill(devices);
+            getNow()
+                .then( (data) => {
+                    statusCache.set( d.id, data );
+                    fulfill(devices);
+                })
+                .catch( (err) =>{
+                    reject(err);
+                });
         });
     }
 
