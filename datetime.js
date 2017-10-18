@@ -8,7 +8,8 @@ function _module(config) {
     }
 
     const redis = require('redis');
-    var moment = require('moment');
+    const moment = require('moment');
+    const _ = require('underscore');
 
     let pub = redis.createClient(
         {
@@ -164,6 +165,21 @@ function _module(config) {
 
     let lastSunriseSunset = { date : '', data : null };
 
+    function addSunriseSunset(d, data){
+
+        d['sunrise'] = moment(data.results.sunrise).utc().format();
+        d['sunset'] = moment(data.results.sunset).utc().format();
+
+        let now = moment( d.now );
+        let sunrise = moment( d.sunrise );
+        let sunset = moment( d.sunset );
+        //let dayLength = sunset - sunrise;
+
+        d['dayTime'] = (now >= sunrise) && (now <= sunset);
+
+        return d;
+    }
+
     function getNow(){
 
         return new Promise( (fulfill, reject) => {
@@ -182,12 +198,11 @@ function _module(config) {
             if ( global.config.location ){
 
                 if ( lastSunriseSunset.date === d.date ){
-                    d['sunrise'] = moment(lastSunriseSunset.data.results.sunrise).utc().format();
-                    d['sunset'] = moment(lastSunriseSunset.data.results.sunset).utc().format();
+                    d = addSunriseSunset(d, lastSunriseSunset.data);
                     return fulfill(d);
                 }
 
-                let url = `https://api.sunrise-sunset.org/json?lat=${global.config.location.lat}&lng=${global.config.location.lng}&formatted=0&date=${now.subtract(1, 'd').format()}`;
+                let url = `https://api.sunrise-sunset.org/json?lat=${global.config.location.lat}&lng=${global.config.location.lng}&formatted=0&date=${now.format()}`;
 
                 call( url )
                     .then( (data) => {
@@ -196,9 +211,7 @@ function _module(config) {
 
                         if ( data.results ) {
                             lastSunriseSunset.date = d.date;
-
-                            d['sunrise'] = moment(data.results.sunrise).utc().format();
-                            d['sunset'] = moment(data.results.sunset).utc().format();
+                            d = addSunriseSunset(d, data);
                         }
 
                         return fulfill(d);
