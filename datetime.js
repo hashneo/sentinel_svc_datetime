@@ -9,7 +9,6 @@ function _module(config) {
 
     const redis = require('redis');
     const moment = require('moment');
-    const _ = require('underscore');
 
     let pub = redis.createClient(
         {
