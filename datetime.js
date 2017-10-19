@@ -243,7 +243,7 @@ function _module(config) {
             let d = {
                 id: global.config.timer_uuid,
                 name: 'timer',
-                type: 'timer',
+                type: 'system.timer',
                 current: {}
             };
 
