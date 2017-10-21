@@ -143,7 +143,6 @@ function _module(config) {
                 id: global.config.timer_uuid,
             };
 
-
             getNow()
                 .then( (data) => {
                     statusCache.set( d.id, data );
@@ -206,7 +205,7 @@ function _module(config) {
                     return fulfill(d);
                 }
 
-                let url = `https://api.sunrise-sunset.org/json?lat=${global.config.location.lat}&lng=${global.config.location.lng}&formatted=0`;
+                let url = `https://api.sunrise-sunset.org/json?lat=${global.config.location.lat}&lng=${global.config.location.lng}&formatted=0&date=${d.date}`;
 
                 call( url )
                     .then( (data) => {
