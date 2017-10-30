@@ -145,7 +145,9 @@ function _module(config) {
 
             getNow()
                 .then( (data) => {
-                    statusCache.set( d.id, data );
+                    if ( moment(data.now).second() == 0 ) {
+                        statusCache.set(d.id, data);
+                    }
                     fulfill();
                 })
                 .catch( (err) =>{
