@@ -44,12 +44,12 @@ build_job_development:
     - docker push $REGISTRY_IMAGE:latest-staging
     - docker logout docker.steventaylor.me
 
-deploy_job_staging:
+.deploy_job_staging:
   stage: deploy
   only:
     - development
   script:
-  #  - docker -H tcp://$SENTINEL_STAGING:2375 login -u gitlab-ci-token -p $CI_JOB_TOKEN docker.steventaylor.me
-  #  - docker -H tcp://$SENTINEL_STAGING:2375 pull $REGISTRY_IMAGE:$CI_COMMIT_SHA
-  #  - docker -H tcp://$SENTINEL_STAGING:2375 service update --image $REGISTRY_IMAGE:$CI_COMMIT_SHA $CI_PROJECT_PATH_SLUG
-  #  - docker -H tcp://$SENTINEL_STAGING:2375 logout docker.steventaylor.me
+    - docker -H tcp://$SENTINEL_STAGING:2375 login -u gitlab-ci-token -p $CI_JOB_TOKEN docker.steventaylor.me
+    - docker -H tcp://$SENTINEL_STAGING:2375 pull $REGISTRY_IMAGE:$CI_COMMIT_SHA
+    - docker -H tcp://$SENTINEL_STAGING:2375 service update --image $REGISTRY_IMAGE:$CI_COMMIT_SHA $CI_PROJECT_PATH_SLUG
+    - docker -H tcp://$SENTINEL_STAGING:2375 logout docker.steventaylor.me
