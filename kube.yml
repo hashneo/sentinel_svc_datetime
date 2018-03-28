@@ -14,7 +14,7 @@ spec:
     context: sentinel-services
     version: v1
 ---
-apiVersion: apps/v1
+apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   name: sentinel-datetime
@@ -30,7 +30,7 @@ spec:
       containers:
         -
           name: sentinel-datetime
-          image: docker.steventaylor.me/sentinel-datetime-x86_64:latest
+          image: docker.steventaylor.me/sentinel/services/datetime/datetime-x86_64:latest-staging
           imagePullPolicy: Always
           env:
             -
@@ -40,11 +40,13 @@ spec:
               name: "CONSUL"
               value: "consul.steventaylor.me"
             -
-              name: "redis"
+              name: "REDIS"
               value: "redis-redis"
           ports:
             -
               containerPort: 5000
               protocol: TCP
+      imagePullSecrets:
+      - name: regcred
       nodeSelector:
           beta.kubernetes.io/arch: amd64
