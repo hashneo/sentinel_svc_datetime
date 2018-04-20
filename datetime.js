@@ -145,8 +145,12 @@ function _module(config) {
 
             getNow()
                 .then( (data) => {
-                    if ( moment(data.now).second() == 0 ) {
+                    if (process.env.DEBUG) {
                         statusCache.set(d.id, data);
+                    }else {
+                        if (moment(data.now).second() == 0) {
+                            statusCache.set(d.id, data);
+                        }
                     }
                     fulfill();
                 })
