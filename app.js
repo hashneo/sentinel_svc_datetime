@@ -64,6 +64,10 @@ consul.kv.get(`config/sentinel/${moduleName}`, function(err, result) {
 
     global.config.save();
 
+    if (!global.config.newrelic) {
+        require('newrelic');
+    }
+
     let pub = redis.createClient(
         {
             host: process.env.REDIS || global.config.redis || '127.0.0.1',
