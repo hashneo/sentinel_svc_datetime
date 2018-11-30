@@ -1,12 +1,18 @@
-FROM mhart/alpine-node:latest
-
-#bash is used to run npm test inside the container
-RUN apk update && apk upgrade && apk --update add bash git && rm -rf /var/cache/apk/*
+FROM node:10-jessie
 
 WORKDIR /src
 ADD . .
 
+ARG CI_JOB_AUTH
+
+RUN apt-get update && \
+    apt-get -y install git
+
+RUN if [ ! -z "${CI_JOB_AUTH}" ] ; then git config --global url.http://${CI_JOB_AUTH}@gitlab.steventaylor.me/.insteadOf http://gitlab.steventaylor.me/ ; fi
+
 RUN npm install
+
+RUN apt-get -y remove git
 
 EXPOSE 5000
 

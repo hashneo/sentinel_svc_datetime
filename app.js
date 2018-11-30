@@ -1,6 +1,8 @@
 'use strict';
 
-require('newrelic');
+if (process.env.NEWRELIC_KEY) {
+    require('newrelic');
+}
 
 const SwaggerExpress = require('swagger-express-mw');
 const SwaggerUi = require('swagger-tools/middleware/swagger-ui');
@@ -66,15 +68,6 @@ consul.kv.get(`config/sentinel/${moduleName}`, function(err, result) {
 
     global.config.save();
 
-
-    let pub = redis.createClient(
-        {
-            host: process.env.REDIS || global.config.redis || '127.0.0.1',
-            socket_keepalive: true,
-            retry_unfulfilled_commands: true
-        }
-    );
-
     SwaggerExpress.create(appConfig, function (err, swaggerExpress) {
         if (err) {
             throw err;
@@ -104,6 +97,14 @@ consul.kv.get(`config/sentinel/${moduleName}`, function(err, result) {
                     interval: '15s'
                 }
             };
+
+            let pub = redis.createClient(
+                {
+                    host: process.env.REDIS || global.config.redis || '127.0.0.1',
+                    socket_keepalive: true,
+                    retry_unfulfilled_commands: true
+                }
+            );
 
             process.env.SERVICE_ID = serviceId;
 
