@@ -52,7 +52,7 @@ function _module(config) {
 
     statusCache.on( 'set', function( key, value ){
         let data = JSON.stringify( { module: 'datetime', id : key, value : value });
-        console.log( 'sentinel.device.update => ' + data );
+        //console.log( 'sentinel.device.update => ' + data );
         pub.publish( 'sentinel.device.update', data);
     });
 
