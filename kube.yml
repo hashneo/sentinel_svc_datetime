@@ -10,38 +10,49 @@ spec:
     protocol: TCP
     targetPort: 5000
   selector:
-    app: datetime
-    context: sentinel-services
+    app: sentinel-datetime
+    context: sentinel
     version: v1
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: sentinel-datetime
+  labels:
+    app: sentinel-datetime
+    context: sentinel
+    version: v1
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      app: sentinel-datetime
   template:
     metadata:
       labels:
-        app: datetime
-        context: sentinel-services
-        version: v1
+        app: sentinel-datetime
     spec:
       containers:
+      -
+        name: sentinel-datetime
+        image: docker.io/hashneo/sentinel-datetime-x86_64:latest
+        imagePullPolicy: Always
+        env:
+        - name: PORT
+          value: "5000"
+        - name: CONSUL
+          value: "consul"
+        - name: NEW_RELIC_NO_CONFIG_FILE
+          value: "true"
+        - name: NEW_RELIC_ENABLED
+          value: "true"
+        - name: NEW_RELIC_APP_NAME
+          value: "Sentinel DateTime"
+        - name: NEW_RELIC_LICENSE_KEY
+          value: ""
+        ports:
         -
-          name: sentinel-datetime
-          image: docker.steventaylor.me/sentinel/services/datetime/datetime-x86_64:latest
-          imagePullPolicy: Always
-          env:
-          - name: PORT
-            value: "5000"
-          - name: CONSUL
-            value: "consul"
-          ports:
-            -
-              containerPort: 5000
-              protocol: TCP
-      imagePullSecrets:
-      - name: regcred
+          containerPort: 5000
+          protocol: TCP
       nodeSelector:
-          beta.kubernetes.io/arch: amd64
+        beta.kubernetes.io/arch: amd64
