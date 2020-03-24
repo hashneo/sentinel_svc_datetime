@@ -33,7 +33,8 @@ jobs:
         kubeconfig: KUBECONFIG_DATA
 
     - kube-orb/update-container-image:
-        container-image-updates: $DEPLOYMENT_NAME=$DOCKER_ORG/$PROJECT_NAME-x86_64:$CIRCLE_SHA1
+        container-image-updates: app=$DOCKER_ORG/$PROJECT_NAME-x86_64:$CIRCLE_SHA1
+        show-kubectl-command: true
         get-rollout-status: true
         record: true
         resource-name: deployment/$DEPLOYMENT_NAME
