@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: sentinel-svc-datetime
+  name: sentinel-datetime
 spec:
   type: ClusterIP
   ports:
@@ -10,31 +10,29 @@ spec:
     protocol: TCP
     targetPort: 5000
   selector:
-    app: sentinel-svc-datetime
+    app: datetime
     context: sentinel
     version: v1
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: sentinel-svc-datetime
-  labels:
-    app: sentinel-svc-datetime
-    context: sentinel
-    version: v1
+  name: sentinel-datetime
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: sentinel-svc-datetime
+      app: datetime
   template:
     metadata:
       labels:
-        app: sentinel-svc-datetime
+        app: datetime
+        context: sentinel
+        version: v1
     spec:
       containers:
       -
-        name: sentinel-svc-datetime
+        name: app
         image: docker.io/hashneo/sentinel-svc-datetime-x86_64:latest
         imagePullPolicy: Always
         env:
