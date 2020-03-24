@@ -1,8 +1,3 @@
-version: 2.1
-
-orbs:
-  kubernetes: circleci/kubernetes@0.11.0
-
 jobs:
   build:
     machine: true
@@ -27,6 +22,8 @@ jobs:
         docker push $DOCKER_ORG/$PROJECT_NAME-x86_64:$CIRCLE_SHA1 &&
         docker push $DOCKER_ORG/$PROJECT_NAME-x86_64:latest
 
+    - kube-orb/install-kubectl
+
     - kube-orb/install-kubeconfig:
         kubeconfig: KUBECONFIG_DATA
 
@@ -35,6 +32,11 @@ jobs:
         get-rollout-status: true
         record: true
         resource-name: deployment/$DEPLOYMENT_NAME
+
+orbs:
+  kubernetes: circleci/kubernetes@0.11.0
+
+version: 2.1
 
 workflows:
   version: 2
