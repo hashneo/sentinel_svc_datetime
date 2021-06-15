@@ -1,4 +1,5 @@
 'use strict';
+
 require('array.prototype.find');
 
 function _module(config) {
