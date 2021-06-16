@@ -24,8 +24,8 @@ jobs:
 
       # deploy the image
       - run: |
-          docker push $DOCKER_ORG/$PROJECT_NAME-x86_64:latest &&
-          docker push $DOCKER_ORG/$PROJECT_NAME-x86_64:$CIRCLE_SHA1
+          docker push $DOCKER_ORG/$PROJECT_NAME-x86_64:$CIRCLE_SHA1 &&
+          docker push $DOCKER_ORG/$PROJECT_NAME-x86_64:latest
 
 workflows:
   version: 2
