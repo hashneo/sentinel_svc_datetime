@@ -11,49 +11,34 @@ function _module(config) {
     const redis = require('redis');
     const moment = require('moment-timezone');
 
-    let pub = redis.createClient(
-        {
-            host: process.env.REDIS || global.config.redis || '127.0.0.1' ,
-            socket_keepalive: true,
-            retry_unfulfilled_commands: true
-        }
-    );
-
-    pub.on('end', function(e){
-        console.log('Redis hung up, committing suicide');
-        process.exit(1);
-    });
+    let pub = global.pub
 
     var NodeCache = require( "node-cache" );
 
     var deviceCache = new NodeCache();
     var statusCache = new NodeCache();
 
-    var merge = require('deepmerge');
-
     var request = require('request');
     var https = require('https');
     var keepAliveAgent = new https.Agent({ keepAlive: true });
-/*
-    require('request').debug = true
-    require('request-debug')(request);
-*/
+
+    const logger = require('sentinel-common').logger;
 
     deviceCache.on( 'set', function( key, value ){
         let data = JSON.stringify( { module: 'datetime', id : key, value : value });
-        console.log( 'sentinel.device.insert => ' + data );
+        logger.info( 'sentinel.device.insert => ' + data );
         pub.publish( 'sentinel.device.insert', data);
     });
 
     deviceCache.on( 'delete', function( key ){
         let data = JSON.stringify( { module: 'datetime', id : key });
-        console.log( 'sentinel.device.delete => ' + data );
+        logger.info( 'sentinel.device.delete => ' + data );
         pub.publish( 'sentinel.device.delete', data);
     });
 
     statusCache.on( 'set', function( key, value ){
         let data = JSON.stringify( { module: 'datetime', id : key, value : value });
-        //console.log( 'sentinel.device.update => ' + data );
+        logger.info( 'sentinel.device.update => ' + data );
         pub.publish( 'sentinel.device.update', data);
     });
 
@@ -73,7 +58,7 @@ function _module(config) {
 
             try {
                 request(options, (err, response, body) => {
-                    if (!err && response.statusCode == 200) {
+                    if (!err && response.statusCode === 200) {
                         fulfill(JSON.parse(body));
                     } else {
                         console.error(err||body);
@@ -149,7 +134,10 @@ function _module(config) {
                     if (process.env.DEBUG) {
                         statusCache.set(d.id, data);
                     }else {
-                        if (moment(data.now).second() == 0) {
+                        let s = moment(data.now).second();
+                        logger.debug(`current second => ${s}`);
+                        if (s === 0) {
+                            logger.debug(`updating status cache`);
                             statusCache.set(d.id, data);
                         }
                     }
@@ -214,8 +202,12 @@ function _module(config) {
 
                 let url = `https://api.sunrise-sunset.org/json?lat=${global.config.location.lat}&lng=${global.config.location.lng}&formatted=0&date=${d.date}`;
 
+                logger.debug(url);
+
                 call( url )
                     .then( (data) => {
+
+                        logger.debug(JSON.stringify(data));
 
                         lastSunriseSunset.data = data;
 
@@ -263,6 +255,7 @@ function _module(config) {
                     fulfill(devices);
                 })
                 .catch( (err) =>{
+                    logger.error(err);
                     reject(err);
                 });
         });

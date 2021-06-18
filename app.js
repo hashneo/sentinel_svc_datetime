@@ -12,6 +12,8 @@ const redis = require('redis');
 
 const uuid = require('uuid');
 
+const logger = require('sentinel-common').logger;
+
 const consul = require('consul')( {
     host: process.env.CONSUL || '127.0.0.1',
     promisify: true
@@ -104,6 +106,8 @@ consul.kv.get(`config/sentinel/${moduleName}`, function(err, result) {
                 }
             );
 
+            global.pub = pub;
+
             process.env.SERVICE_ID = serviceId;
 
             pub.on('ready', function(e){
@@ -115,9 +119,14 @@ consul.kv.get(`config/sentinel/${moduleName}`, function(err, result) {
                 }, 5000 );
 
                 if (swaggerExpress.runner.swagger.paths['/health']) {
-                    console.log(`you can get /health?id=${serviceId} on port ${port}`);
+                    logger.info(`you can get /health?id=${serviceId} on port ${port}`);
                 }
                 global.module = require(`./${moduleName}.js`)(config);
+            });
+
+            pub.on('end', function(e){
+                console.log('Redis hung up, committing suicide');
+                process.exit(1);
             });
 
         });
@@ -127,7 +136,7 @@ consul.kv.get(`config/sentinel/${moduleName}`, function(err, result) {
 });
 
 process.on('unhandledRejection', (reason, p) => {
-    console.log('Unhandled Rejection at: Promise', p, 'reason:', reason);
+    logger.error('Unhandled Rejection at: Promise', p, 'reason:', reason);
     process.exit(1);
 });
 
